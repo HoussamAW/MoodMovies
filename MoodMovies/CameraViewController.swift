@@ -14,11 +14,13 @@ final class CameraViewController: UIViewController, AVCaptureVideoDataOutputSamp
     // Starts the camera session system
     let session = AVCaptureSession()
     
+    // Execute the model
+    private let analyzer = MoodAnalyzer()
+    
     // Background queue used to process camera frames so the UI stays responsive
     private let videoQueue = DispatchQueue(label: "camera.video.queue")
     
-    // Vision request used to detect faces
-    let request = VNDetectFaceRectanglesRequest()
+   
     
     // Prepares the camera when the screen is loaded
     override func viewDidLoad() {
@@ -77,19 +79,17 @@ final class CameraViewController: UIViewController, AVCaptureVideoDataOutputSamp
             return
         }
         
-    // The handler is the object that executes the Vision request
-    // on the image from this specific frame
-        let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:])
-        
+        // analyze each frame and return the mood
         do {
-            try handler.perform([request])
+            if let result = try analyzer.analyze(pixelBuffer: pixelBuffer) {
+                print("Mood: \(result.mood.rawValue)")
+                print("Confidence: \(result.confidence)")
+            } else {
+                print("No mood detected")
+            }
         } catch {
-            print("Error Vision :", error)
+            print("Mood analysis error: \(error)")
         }
-        
-        let faces = request.results ?? []
-        // Test to verify whether a face was detected in the image
-        print("Faces detected: \(faces.count)")
     }
     
 }
