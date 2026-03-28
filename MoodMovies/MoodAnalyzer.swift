@@ -11,7 +11,10 @@ import CoreML
 enum Mood: String {
     case happy
     case sad
-    case neutral
+    case angry
+    case disgust
+    case fear
+    case surprise
     case unknown
 }
 
@@ -23,7 +26,7 @@ final class MoodAnalyzer {
     init() {
         do {
             let config = MLModelConfiguration()
-            let model = try MoodClassifier1(configuration: config).model
+            let model = try MoodClassifier(configuration: config).model
             let visionModel = try VNCoreMLModel(for: model)
 
             let request = VNCoreMLRequest(model: visionModel)
@@ -55,8 +58,6 @@ final class MoodAnalyzer {
             return .happy
         case "sad":
             return .sad
-        case "neutral":
-            return .neutral
         default:
             return .unknown
         }
